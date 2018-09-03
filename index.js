@@ -16,6 +16,10 @@ const redirectURI = 'https://stackoverflow.com/oauth/login_success'
 const getToken = (x) => {
   const zzz = url.parse(x)
   const { query } = url.parse(url.format({ ...zzz, hash: null, search: `?${zzz.hash.slice(1)}` }), true)
+
+  if (!query.access_token || !query.expires) {
+    throw new Error('Malformed. Missing access_token or expires keys.')
+  }
   const creds = {
     token: query.access_token,
     expiresAt: query.expires * 1000 + Date.now()
@@ -56,10 +60,12 @@ Copy that URL here and press enter.
       })
 
       process.stdin.on('close', () => {
-        if (c) {
-          return resolve(getToken(c))
+        if (!c) {
+          return reject(new Error('No response? Why not...'))
         }
-        reject(new Error('No response? Why not...'))
+        getToken(c)
+          .then(resolve)
+          .catch(reject)
       })
 
       process.stdin.on('error', reject)
