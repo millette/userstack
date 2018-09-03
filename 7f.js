@@ -16,7 +16,8 @@ const ls = spawn('7z', ['x', '-so', '/home/millette/so/official/stackoverflow.co
 // const ls = spawn('7z', ['x', '-so', '-si'])
 // { stdio: ['pipe'] }
 
-// my 7z can't handle stdin
+// my 7z (9.2.0) can't handle stdin
+// neither can 16.02
 // const inp = got.stream('https://archive.org/download/stackexchange/stackoverflow.com-Users.7z')
 
 // inp.pipe(ls.stdin)
