@@ -21,7 +21,7 @@ const getToken = (x) => {
     expiresAt: query.expires * 1000 + Date.now()
   }
   writeFileSync('creds.json', JSON.stringify(creds, null, '  '), 'utf-8')
-  return creds
+  return creds.token
 }
 
 process.stdin.setEncoding('utf8')
@@ -31,11 +31,10 @@ const auth = async () => {
     const creds = require('./creds.json')
     const now = Date.now()
     if (creds.token && (now < creds.expiresAt)) {
-      return creds
+      return creds.token
     }
-  } catch (e) {
+  } catch () {
     // no worries
-    console.log('CATCHING', e)
   }
   console.log(`Confirm in your browser you want to give us specified permissions.
 After confirmation, you will be taken to a URL like
@@ -70,6 +69,19 @@ Copy that URL here and press enter.
 }
 
 const g1 = (p, token) => got(`https://api.stackexchange.com/2.2/users?page=${p || 1}&pagesize=100&order=asc&sort=creation&site=stackoverflow&access_token=${token}&key=${key}`, { json: true })
+  .catch((e) => {
+    if (e.statusCode === 400) {
+      let lp = {}
+      try {
+        lp = require('./last-page.json')
+      } catch () {
+        // no biggie
+      }
+      lp.quota_remaining = -1
+      writeFileSync('last-page.json', JSON.stringify(lp, null, '  '), 'utf-8')
+    }
+    throw e
+  })
 
 const g2 = async (token) => {
   let quota_remaining
@@ -77,7 +89,7 @@ const g2 = async (token) => {
   let lp
   try {
     lp = require('./last-page.json')
-  } catch (e) {
+  } catch () {
     // no biggie
   }
 
@@ -114,13 +126,7 @@ const g2 = async (token) => {
   return ret
 }
 
-const run = async () => {
-  const { token } = await auth()
-  return g2(token)
-}
-
-run()
+auth()
+  .then(g2)
   .then(console.log)
-  .catch((e) => {
-    console.error('FINAL ERROR:', e)
-  })
+  .catch(console.error)
