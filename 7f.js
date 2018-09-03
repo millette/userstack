@@ -30,28 +30,28 @@ oy.on('tag:row', (row) => {
   ls.kill()
 })
 
-
 ls.on('close', () => {
   console.error('ls close:')
+})
+
+ls.on('error', (er) => {
+  console.error('ls error:', er)
 })
 
 oy.on('close', () => {
   console.error('oy close:')
 })
 
-inp.on('close', () => {
-  console.error('inp close:')
-})
-
-
-ls.on('error', (er) => {
-  console.error('ls error:', er)
-})
-
 oy.on('error', (er) => {
   console.error('oy error:', er)
+})
+
+/*
+inp.on('close', () => {
+  console.error('inp close:')
 })
 
 inp.on('error', (er) => {
   console.error('inp error:', er)
 })
+*/
