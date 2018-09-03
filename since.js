@@ -117,6 +117,9 @@ const g2 = async (token) => {
     const x = await g1(nextPage, token)
     remaining = x.body.quota_remaining
     writeFileSync(`so-page-since-${nextPage}.json`, JSON.stringify({ body: x.body, headers: x.headers }, null, '  '), 'utf-8')
+    if (!x.body.has_more) {
+      break
+    }
     if (x.body.backoff) {
       console.log(`${new Date().toISOString()} sleeping ${x.body.backoff}s`)
       await delay(x.body.backoff * 1000)
