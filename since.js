@@ -25,7 +25,7 @@ const getToken = (x) => {
     expiresAt: query.expires * 1000 + Date.now()
   }
   writeFileSync('creds.json', JSON.stringify(creds, null, '  '), 'utf-8')
-  return creds.token
+  return Promise.resolve(creds.token)
 }
 
 process.stdin.setEncoding('utf8')
