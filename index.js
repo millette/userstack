@@ -109,7 +109,8 @@ const g2 = async (token) => {
   }
 
   const first = lp ? lp.nextPage : 1
-  const last = first + lp.remaining - 1
+  // const last = first + lp.remaining - 1
+  const last = first + ((lp && lp.remaining) || 10000) - 1
   console.log(`Processing ${first} to ${last} pages.`)
 
   for (nextPage = first; nextPage < last; ++nextPage) {
