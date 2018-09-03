@@ -9,9 +9,9 @@ const got = require('got')
 const delay = require('delay')
 const opn = require('opn')
 
-const client_id = 13050 // not a secret
+const clientID = 13050 // not a secret
 const key = 'WT5yyJg7wH7LTFZHls4i)g((' // not a secret
-const redirect_uri = 'https://stackoverflow.com/oauth/login_success'
+const redirectURI = 'https://stackoverflow.com/oauth/login_success'
 
 const getToken = (x) => {
   const zzz = url.parse(x)
@@ -33,7 +33,7 @@ const auth = async () => {
     if (creds.token && (now < creds.expiresAt)) {
       return creds.token
     }
-  } catch () {
+  } catch (eee) {
     // no worries
   }
   console.log(`Confirm in your browser you want to give us specified permissions.
@@ -43,8 +43,8 @@ After confirmation, you will be taken to a URL like
 Copy that URL here and press enter.
 `)
 
-  const [bah, query] = await Promise.all([
-    opn(`https://stackoverflow.com/oauth/dialog?client_id=${client_id}&redirect_uri=${redirect_uri}`, { app: 'firefox' }),
+  const [, query] = await Promise.all([
+    opn(`https://stackoverflow.com/oauth/dialog?client_id=${clientID}&redirect_uri=${redirectURI}`, { app: 'firefox' }),
     new Promise((resolve, reject) => {
       let c
       process.stdin.on('readable', () => {
@@ -74,42 +74,42 @@ const g1 = (p, token) => got(`https://api.stackexchange.com/2.2/users?page=${p |
       let lp = {}
       try {
         lp = require('./last-page.json')
-      } catch () {
+      } catch (eee) {
         // no biggie
       }
-      lp.quota_remaining = -1
+      lp.remaining = -1
       writeFileSync('last-page.json', JSON.stringify(lp, null, '  '), 'utf-8')
     }
     throw e
   })
 
 const g2 = async (token) => {
-  let quota_remaining
+  let remaining
   let nextPage
   let lp
   try {
     lp = require('./last-page.json')
-  } catch () {
+  } catch (eee) {
     // no biggie
   }
 
-  if (lp && lp.quota_remaining < 1) {
+  if (lp && lp.remaining < 1) {
     if ((process.argv[2] !== '--force') && (process.argv[2] !== '-f')) {
       console.log('Use --force or -f to force process if you think your quota is now ok.')
       return { throttled: true }
     }
-    lp.quota_remaining = 10000
+    lp.remaining = 10000
     writeFileSync('last-page.json', JSON.stringify(lp, null, '  '), 'utf-8')
   }
 
   const first = lp ? lp.nextPage : 1
-  const last = first + lp.quota_remaining - 1
+  const last = first + lp.remaining - 1
   console.log(`Processing ${first} to ${last} pages.`)
 
   for (nextPage = first; nextPage < last; ++nextPage) {
     console.log(`${new Date().toISOString()} fetching page ${nextPage}`)
     const x = await g1(nextPage, token)
-    quota_remaining = x.body.quota_remaining
+    remaining = x.body.quota_remaining
     writeFileSync(`so-page-${nextPage}.json`, JSON.stringify({ body: x.body, headers: x.headers }, null, '  '), 'utf-8')
     if (x.body.backoff) {
       console.log(`${new Date().toISOString()} sleeping ${x.body.backoff}s`)
@@ -118,7 +118,7 @@ const g2 = async (token) => {
   }
 
   const ret = {
-    quota_remaining,
+    remaining,
     nextPage
   }
 
