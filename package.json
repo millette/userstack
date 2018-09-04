@@ -1,8 +1,14 @@
 {
-  "name": "so",
+  "name": "userstack",
   "version": "0.0.0",
   "main": "index.js",
   "license": "AGPL-3.0",
+  "repository": "millette/userstack",
+  "author": {
+    "name": "Robin Millette",
+    "email": "robin@millette.info",
+    "url": "http://robin.millette.info"
+  },
   "scripts": {
     "lint": "standard"
   },
